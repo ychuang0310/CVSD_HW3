@@ -1,0 +1,11 @@
+StudentID: 
+
+Clock period: (ns)
+
+Area :  (um2)
+
+Latency:
+    tb0:  (cycle)
+    tb1:  (cycle)
+    tb2:  (cycle)
+
