@@ -1,1 +1,1 @@
-ncverilog testbed.v ipdc.v ../sram_256x8/sram_256x8.v +notimingchecks +access+r +define+tb0
+ncverilog testbed.v ipdc.v ../sram_256x8/sram_256x8.v +notimingchecks +access+r +define+tb1

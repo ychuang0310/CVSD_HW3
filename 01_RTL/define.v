@@ -9,8 +9,6 @@
 // `define OP_RGB              3'd7
 
 // IPDC STATE
-`define IPDC_State_Idle         4'd8
-`define IPDC_State_Ready        4'd9
 `define IPDC_State_Load         4'd0
 `define IPDC_State_ShiftRight   4'd1
 `define IPDC_State_ShiftDown    4'd2
@@ -19,22 +17,20 @@
 `define IPDC_State_Median       4'd5
 `define IPDC_State_YCbCr        4'd6
 `define IPDC_State_RBG          4'd7
+`define IPDC_State_Idle         4'd8
+`define IPDC_State_Ready        4'd9
+`define IPDC_State_Display      4'd10
 
 // LOAD STATE
-// Channel (0, 1, 2) = (R/Y, G/Cb, B/Cr)
-`define Load_State_Idle     2'd3
-`define Load_State_C0       2'd0
-`define Load_State_C1       2'd1
-`define Load_State_C2       2'd2
+// `define Load_State_Idle         1'b0
+// `define Load_State_Load         1'b1
 
 
 // DISPLAY STATE
-`define Display_State_Idle  2'd3
-`define Display_State_C0    2'd0
-`define Display_State_C1    2'd1
-`define Display_State_C2    2'd2
+`define Display_State_Idle      1'b0
+`define Display_State_Display   1'b1
 
 
 // DISPLAY MODE
-`define Display_RGB         1'b0
-`define Display_YCbCr       1'b1
+`define Display_Mode_RGB        1'b0
+`define Display_Mode_YCbCr      1'b1
