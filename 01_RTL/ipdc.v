@@ -53,7 +53,7 @@ reg             o_out_valid_r, o_out_valid_w;
 // YCbCr mode
 wire    [7: 0]  Y, Cb, Cr;
 
-// sram address: 00xxxyyy
+// sram address: 00yyyxxx
 // xxx: x coordinate {000, 001,..., 111}
 // yyy: y coordinate {000, 001,..., 111}
 // sram[0:2]: channel 0 ~ 2 (RGB | YCbCr)
