@@ -59,6 +59,7 @@ reg     [ 7: 0] median_i0_w [0:2], median_i1_w [0:2];
 reg     [ 7: 0] median_m0_r [0:2], median_m1_r [0:2], median_m2_r [0:2];
 reg     [ 7: 0] median_m0_w [0:2], median_m1_w [0:2], median_m2_w [0:2];
 wire    [ 7: 0] median_m [0:2], Median_Final [0:2];
+wire            iter_l_edge, iter_r_edge, iter_t_edge, iter_b_edge;
 wire            Median_Finish;
 
 // OUTPUT
@@ -113,6 +114,10 @@ assign o_out_data       = (Display_State_r != `Display_State_Display) ? 24'b0 :
 
 // MIDEAN
 assign Median_Finish    = (IPDC_State_r == `IPDC_State_Median) & o_out_valid_w;
+assign iter_l_edge      = ~|Iterator_X_r;
+assign iter_r_edge      =  &Iterator_X_r;
+assign iter_t_edge      = ~|Iterator_Y_r;
+assign iter_b_edge      =  &Iterator_Y_r;
 
 // ---------------------------------------------------------------------------
 // Combinational Blocks
@@ -208,26 +213,27 @@ always@(*) begin
         `IPDC_State_Median: begin
             if(Median_Finish)   IPDC_State_w = `IPDC_State_Ready;
 
+            {Iterator_Y_w, Iterator_X_w} = {Iterator_Y_r, Iterator_X_r};
             case(Median_State_r)
                 `Median_State_Idle: begin
                     Median_State_w = `Median_State_Read_0;
                 end
                 `Median_State_Read_0: begin
                     Median_State_w = `Median_State_Read_1;
-                    for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i0_w[k] = (iter_l_edge | iter_t_edge) ? 8'b0 : Sram_Data_o[k];
                 end
                 `Median_State_Read_1: begin
                     Median_State_w = `Median_State_Read_2;
-                    for(k=0; k<3; k=k+1) median_i1_w[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i1_w[k] = (iter_t_edge) ? 8'b0 : Sram_Data_o[k];
                 end
                 `Median_State_Read_2: begin
                     Median_State_w = `Median_State_Read_3;
-                    for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i2_r[k] = (iter_r_edge | iter_t_edge) ? 8'b0 : Sram_Data_o[k];
                     for(k=0; k<3; k=k+1) median_m0_w[k] = median_m[k];
                 end
                 `Median_State_Read_3: begin
                     Median_State_w = `Median_State_Read_4;
-                    for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i0_w[k] = (iter_l_edge) ? 8'b0 : Sram_Data_o[k];
                 end
                 `Median_State_Read_4: begin
                     Median_State_w = `Median_State_Read_5;
@@ -235,20 +241,20 @@ always@(*) begin
                 end
                 `Median_State_Read_5: begin
                     Median_State_w = `Median_State_Read_6;
-                    for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i2_r[k] = (iter_r_edge) ? 8'b0 : Sram_Data_o[k];
                     for(k=0; k<3; k=k+1) median_m1_w[k] = median_m[k];
                 end
                 `Median_State_Read_6: begin
                     Median_State_w = `Median_State_Read_7;
-                    for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i0_w[k] = (iter_l_edge | iter_b_edge) ? 8'b0 : Sram_Data_o[k];
                 end
                 `Median_State_Read_7: begin
                     Median_State_w = `Median_State_Read_8;
-                    for(k=0; k<3; k=k+1) median_i1_w[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i1_w[k] = (iter_b_edge) ? 8'b0 : Sram_Data_o[k];
                 end
                 `Median_State_Read_8: begin
                     Median_State_w = `Median_State_Write;
-                    for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i2_r[k] = (iter_r_edge | iter_b_edge) ? 8'b0 : Sram_Data_o[k];
                     for(k=0; k<3; k=k+1) median_m2_w[k] = median_m[k];
                 end
                 `Median_State_Write: begin
@@ -267,12 +273,14 @@ always@(*) begin
             IPDC_State_w = `IPDC_State_Ready;
 
             Display_Mode_w = `Display_Mode_RGB;
+            o_out_valid_w = 1'b1;
         end
 
         `IPDC_State_YCbCr: begin
             IPDC_State_w = `IPDC_State_Ready;
 
             Display_Mode_w = `Display_Mode_YCbCr;
+            o_out_valid_w = 1'b1;
         end
 
     endcase
