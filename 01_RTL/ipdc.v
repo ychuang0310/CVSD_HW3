@@ -118,20 +118,38 @@ assign Median_Finish    = (IPDC_State_r == `IPDC_State_Median) & o_out_valid_w;
 // Combinational Blocks
 // ---------------------------------------------------------------------------
 // ---- Write your conbinational block design here ---- //
-// DEFAULT
 always@(*) begin
+    // COORDINATE
     {Iterator_Y_w, Iterator_X_w}    = 6'b0;
     {Origin_Y_w, Origin_X_w}        = {Origin_Y_r, Origin_X_r};
+
+    // SRAM
     {Sram_Data_i[2], Sram_Data_i[1], Sram_Data_i[0]} = 24'b0;
     Sram_Addr       = 8'b0;
     Sram_Wen        = 1'b1;
 
+    // OUTPUT
     o_out_valid_w   = 1'b0;
-end
 
-// STATE
-always@(*) begin
+    // STATE
     IPDC_State_w = IPDC_State_r;
+
+    // DISPLAY
+    Display_State_w = `Display_State_Idle;
+    {Display_Y_Offset_w, Display_X_Offset_w} = 4'b0;
+
+    // MEDIAN
+    Median_State_w = `Median_State_Idle;
+    for(k=0; k<3; k=k+1) median_i0_w[k] = median_i0_r[k];
+    for(k=0; k<3; k=k+1) median_i1_w[k] = median_i1_r[k];
+    for(k=0; k<3; k=k+1) median_i2_r[k] = 8'b0;
+    for(k=0; k<3; k=k+1) median_m0_w[k] = median_m0_r[k];
+    for(k=0; k<3; k=k+1) median_m1_w[k] = median_m1_r[k];
+    for(k=0; k<3; k=k+1) median_m2_w[k] = median_m2_r[k];
+
+    // DISPLAYMODE
+    Display_Mode_w = Display_Mode_r;
+
 
     case(IPDC_State_r)
         `IPDC_State_Idle:       IPDC_State_w = `IPDC_State_Ready;
@@ -158,134 +176,110 @@ always@(*) begin
             IPDC_State_w = `IPDC_State_Ready;
         end
     endcase
-end
 
-// LOAD
-always@(*) begin
-    if(IPDC_State_r == `IPDC_State_Load) begin
-        Sram_Addr = {2'b0, Iterator_Y_r, Iterator_X_r};
-        {Sram_Data_i[2], Sram_Data_i[1], Sram_Data_i[0]} = i_in_data;
-        Sram_Wen = 1'b0;
 
-        if(i_in_valid) {Iterator_Y_w, Iterator_X_w} = {Iterator_Y_r, Iterator_X_r} + 6'b1;
-        o_out_valid_w = &{Iterator_Y_r ,Iterator_X_r};
-    end
-end
 
-// DISPLAY
-always@(*) begin
-    Display_State_w = `Display_State_Idle;
-    {Display_Y_Offset_w, Display_X_Offset_w} = 4'b0;
-    if(IPDC_State_r == `IPDC_State_Display) begin
-        Display_State_w = `Display_State_Display;
-        Sram_Addr = {2'b0, Display_Y, Display_X};
-        {Display_Y_Offset_w, Display_X_Offset_w}  = {Display_Y_Offset_r, Display_X_Offset_r} + 4'b1;
-        o_out_valid_w = (Display_State_r == `Display_State_Idle) | (|{Display_Y_Offset_r, Display_X_Offset_r});
-    end
-end
+    case(IPDC_State_r)
+        `IPDC_State_Load: begin
+            Sram_Addr = {2'b0, Iterator_Y_r, Iterator_X_r};
+            {Sram_Data_i[2], Sram_Data_i[1], Sram_Data_i[0]} = i_in_data;
+            Sram_Wen = 1'b0;
 
-// SHIFTRIGHT
-always@(*) begin
-    if(IPDC_State_r == `IPDC_State_ShiftRight) begin
-        if(~Origin_X_r[2]) Origin_X_w = Origin_X_r + 3'b1;
-    end
-end
+            if(i_in_valid) {Iterator_Y_w, Iterator_X_w} = {Iterator_Y_r, Iterator_X_r} + 6'b1;
+            o_out_valid_w = &{Iterator_Y_r ,Iterator_X_r};
+        end
 
-// SHIFTDOWN
-always@(*) begin
-    if(IPDC_State_r == `IPDC_State_ShiftDown) begin
-        if((~Origin_Y_r[2])) Origin_Y_w = Origin_Y_r + 3'b1;
-    end
-end
+        `IPDC_State_Display: begin
+            Display_State_w = `Display_State_Display;
+            Sram_Addr = {2'b0, Display_Y, Display_X};
+            {Display_Y_Offset_w, Display_X_Offset_w}  = {Display_Y_Offset_r, Display_X_Offset_r} + 4'b1;
+            o_out_valid_w = (Display_State_r == `Display_State_Idle) | (|{Display_Y_Offset_r, Display_X_Offset_r});
+        end
 
-// DEFAULT
-always@(*) begin
-    if(IPDC_State_r == `IPDC_State_Default) begin
-        Origin_X_w = 3'b0;
-        Origin_Y_w = 3'b0;
-    end
-end
+        `IPDC_State_ShiftRight: begin
+            if(~Origin_X_r[2]) Origin_X_w = Origin_X_r + 3'b1;
+        end
 
-// ZOOMIN
-always@(*) begin
-    if(IPDC_State_r == `IPDC_State_Zoomin) begin
-        Origin_X_w = 3'd2;
-        Origin_Y_w = 3'd2;
-    end
-end
+        `IPDC_State_ShiftDown: begin
+            if((~Origin_Y_r[2])) Origin_Y_w = Origin_Y_r + 3'b1;
+        end
 
-// MEDIAN
-always@(*) begin
-    Median_State_w = `Median_State_Idle;
-    for(k=0; k<3; k=k+1) median_i0_w[k] = median_i0_r[k];
-    for(k=0; k<3; k=k+1) median_i1_w[k] = median_i1_r[k];
-    for(k=0; k<3; k=k+1) median_i2_r[k] = 8'b0;
-    for(k=0; k<3; k=k+1) median_m0_w[k] = median_m0_r[k];
-    for(k=0; k<3; k=k+1) median_m1_w[k] = median_m1_r[k];
-    for(k=0; k<3; k=k+1) median_m2_w[k] = median_m2_r[k];
-    
-    if(IPDC_State_r == `IPDC_State_Median) begin
-        case(Median_State_r)
-            `Median_State_Idle: begin
-                Median_State_w = `Median_State_Read_0;
-            end
-            `Median_State_Read_0: begin
-                Median_State_w = `Median_State_Read_1;
-                for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
-            end
-            `Median_State_Read_1: begin
-                Median_State_w = `Median_State_Read_2;
-                for(k=0; k<3; k=k+1) median_i1_w[k] = Sram_Data_o[k];
-            end
-            `Median_State_Read_2: begin
-                Median_State_w = `Median_State_Read_3;
-                for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
-                for(k=0; k<3; k=k+1) median_m0_w[k] = median_m[k];
-            end
-            `Median_State_Read_3: begin
-                Median_State_w = `Median_State_Read_4;
-                for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
-            end
-            `Median_State_Read_4: begin
-                Median_State_w = `Median_State_Read_5;
-                for(k=0; k<3; k=k+1) median_i1_w[k] = Sram_Data_o[k];
-            end
-            `Median_State_Read_5: begin
-                Median_State_w = `Median_State_Read_6;
-                for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
-                for(k=0; k<3; k=k+1) median_m1_w[k] = median_m[k];
-            end
-            `Median_State_Read_6: begin
-                Median_State_w = `Median_State_Read_7;
-                for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
-            end
-            `Median_State_Read_7: begin
-                Median_State_w = `Median_State_Read_8;
-                for(k=0; k<3; k=k+1) median_i1_w[k] = Sram_Data_o[k];
-            end
-            `Median_State_Read_8: begin
-                Median_State_w = `Median_State_Write;
-                for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
-                for(k=0; k<3; k=k+1) median_m2_w[k] = median_m[k];
-            end
-            `Median_State_Write: begin
-                Median_State_w = `Median_State_Idle;
-                for(k=0; k<3; k=k+1) Sram_Data_i[k] = Median_Final[k];
-                Sram_Wen = 1'b0;
-                {Iterator_Y_w, Iterator_X_w} = {Iterator_Y_r, Iterator_X_r} + 6'b1;
-            end
-        endcase
+        `IPDC_State_Default: begin
+            Origin_X_w = 3'b0;
+            Origin_Y_w = 3'b0;
+        end
 
-        Sram_Addr = {2'b0, Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]}, Iterator_X_r + {Median_State_r[1], Median_State_r[1:0]}};
-        o_out_valid_w = (Median_State_r == `Median_State_Write) & (&{Iterator_Y_r, Iterator_X_r});
-    end
-end
+        `IPDC_State_Zoomin: begin
+            Origin_X_w = 3'd2;
+            Origin_Y_w = 3'd2;
+        end
 
-// DISPLAYMODE
-always@(*) begin
-    Display_Mode_w = Display_Mode_r;
-    if(IPDC_State_r == `IPDC_State_RBG)         Display_Mode_w = `Display_Mode_RGB;
-    else if(IPDC_State_r == `IPDC_State_YCbCr)  Display_Mode_w = `Display_Mode_YCbCr;
+        `IPDC_State_Median: begin
+            case(Median_State_r)
+                `Median_State_Idle: begin
+                    Median_State_w = `Median_State_Read_0;
+                end
+                `Median_State_Read_0: begin
+                    Median_State_w = `Median_State_Read_1;
+                    for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
+                end
+                `Median_State_Read_1: begin
+                    Median_State_w = `Median_State_Read_2;
+                    for(k=0; k<3; k=k+1) median_i1_w[k] = Sram_Data_o[k];
+                end
+                `Median_State_Read_2: begin
+                    Median_State_w = `Median_State_Read_3;
+                    for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_m0_w[k] = median_m[k];
+                end
+                `Median_State_Read_3: begin
+                    Median_State_w = `Median_State_Read_4;
+                    for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
+                end
+                `Median_State_Read_4: begin
+                    Median_State_w = `Median_State_Read_5;
+                    for(k=0; k<3; k=k+1) median_i1_w[k] = Sram_Data_o[k];
+                end
+                `Median_State_Read_5: begin
+                    Median_State_w = `Median_State_Read_6;
+                    for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_m1_w[k] = median_m[k];
+                end
+                `Median_State_Read_6: begin
+                    Median_State_w = `Median_State_Read_7;
+                    for(k=0; k<3; k=k+1) median_i0_w[k] = Sram_Data_o[k];
+                end
+                `Median_State_Read_7: begin
+                    Median_State_w = `Median_State_Read_8;
+                    for(k=0; k<3; k=k+1) median_i1_w[k] = Sram_Data_o[k];
+                end
+                `Median_State_Read_8: begin
+                    Median_State_w = `Median_State_Write;
+                    for(k=0; k<3; k=k+1) median_i2_r[k] = Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_m2_w[k] = median_m[k];
+                end
+                `Median_State_Write: begin
+                    Median_State_w = `Median_State_Idle;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = Median_Final[k];
+                    Sram_Wen = 1'b0;
+                    {Iterator_Y_w, Iterator_X_w} = {Iterator_Y_r, Iterator_X_r} + 6'b1;
+                end
+            endcase
+
+            Sram_Addr = {2'b0, Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]}, Iterator_X_r + {Median_State_r[1], Median_State_r[1:0]}};
+            o_out_valid_w = (Median_State_r == `Median_State_Write) & (&{Iterator_Y_r, Iterator_X_r});
+        end
+
+        `IPDC_State_RBG: begin
+            Display_Mode_w = `Display_Mode_RGB;
+        end
+
+        `IPDC_State_YCbCr: begin
+            Display_Mode_w = `Display_Mode_YCbCr;
+        end
+
+    endcase
+
 end
 
 // ---------------------------------------------------------------------------
