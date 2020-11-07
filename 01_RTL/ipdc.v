@@ -152,35 +152,16 @@ always@(*) begin
 
 
     case(IPDC_State_r)
-        `IPDC_State_Idle:       IPDC_State_w = `IPDC_State_Ready;
+        `IPDC_State_Idle: begin
+            IPDC_State_w = `IPDC_State_Ready;
+        end
 
         `IPDC_State_Ready: begin
             if(i_op_valid)      IPDC_State_w = {1'b0, i_op_mode};
         end
-
         `IPDC_State_Load: begin
             if(Load_Finish)     IPDC_State_w = `IPDC_State_Ready;
-        end
 
-        `IPDC_State_Display: begin
-            if(Display_Finish)  IPDC_State_w = `IPDC_State_Ready;
-        end
-
-        `IPDC_State_ShiftRight, `IPDC_State_ShiftDown, `IPDC_State_Default, `IPDC_State_Zoomin: begin
-            IPDC_State_w = `IPDC_State_Display;
-        end
-        `IPDC_State_Median: begin
-            if(Median_Finish)   IPDC_State_w = `IPDC_State_Ready;
-        end
-        `IPDC_State_YCbCr, `IPDC_State_RBG: begin
-            IPDC_State_w = `IPDC_State_Ready;
-        end
-    endcase
-
-
-
-    case(IPDC_State_r)
-        `IPDC_State_Load: begin
             Sram_Addr = {2'b0, Iterator_Y_r, Iterator_X_r};
             {Sram_Data_i[2], Sram_Data_i[1], Sram_Data_i[0]} = i_in_data;
             Sram_Wen = 1'b0;
@@ -190,6 +171,8 @@ always@(*) begin
         end
 
         `IPDC_State_Display: begin
+            if(Display_Finish)  IPDC_State_w = `IPDC_State_Ready;
+
             Display_State_w = `Display_State_Display;
             Sram_Addr = {2'b0, Display_Y, Display_X};
             {Display_Y_Offset_w, Display_X_Offset_w}  = {Display_Y_Offset_r, Display_X_Offset_r} + 4'b1;
@@ -197,24 +180,34 @@ always@(*) begin
         end
 
         `IPDC_State_ShiftRight: begin
+            IPDC_State_w = `IPDC_State_Display;
+
             if(~Origin_X_r[2]) Origin_X_w = Origin_X_r + 3'b1;
         end
 
         `IPDC_State_ShiftDown: begin
+            IPDC_State_w = `IPDC_State_Display;
+
             if((~Origin_Y_r[2])) Origin_Y_w = Origin_Y_r + 3'b1;
         end
 
         `IPDC_State_Default: begin
+            IPDC_State_w = `IPDC_State_Display;
+
             Origin_X_w = 3'b0;
             Origin_Y_w = 3'b0;
         end
 
         `IPDC_State_Zoomin: begin
+            IPDC_State_w = `IPDC_State_Display;
+
             Origin_X_w = 3'd2;
             Origin_Y_w = 3'd2;
         end
 
         `IPDC_State_Median: begin
+            if(Median_Finish)   IPDC_State_w = `IPDC_State_Ready;
+
             case(Median_State_r)
                 `Median_State_Idle: begin
                     Median_State_w = `Median_State_Read_0;
@@ -271,10 +264,14 @@ always@(*) begin
         end
 
         `IPDC_State_RBG: begin
+            IPDC_State_w = `IPDC_State_Ready;
+
             Display_Mode_w = `Display_Mode_RGB;
         end
 
         `IPDC_State_YCbCr: begin
+            IPDC_State_w = `IPDC_State_Ready;
+
             Display_Mode_w = `Display_Mode_YCbCr;
         end
 
