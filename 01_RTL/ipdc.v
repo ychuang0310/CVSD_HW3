@@ -120,7 +120,7 @@ assign Median_Finish    = (IPDC_State_r == `IPDC_State_Median) & o_out_valid_w;
 // ---- Write your conbinational block design here ---- //
 // DEFAULT
 always@(*) begin
-    {Iterator_X_w, Iterator_Y_w}    = 6'b0;
+    {Iterator_Y_w, Iterator_X_w}    = 6'b0;
     {Origin_Y_w, Origin_X_w}        = {Origin_Y_r, Origin_X_r};
     {Sram_Data_i[2], Sram_Data_i[1], Sram_Data_i[0]} = 24'b0;
     Sram_Addr       = 8'b0;
@@ -275,11 +275,10 @@ always@(*) begin
                 {Iterator_Y_w, Iterator_X_w} = {Iterator_Y_r, Iterator_X_r} + 6'b1;
             end
         endcase
-    end
 
-    Sram_Addr = {2'b0, Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]}, Iterator_X_r + {Median_State_r[1], Median_State_r[1:0]}};
-    
-    o_out_valid_w = (Median_State_r == `Median_State_Write) & (&{Iterator_Y_r, Iterator_X_r});
+        Sram_Addr = {2'b0, Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]}, Iterator_X_r + {Median_State_r[1], Median_State_r[1:0]}};
+        o_out_valid_w = (Median_State_r == `Median_State_Write) & (&{Iterator_Y_r, Iterator_X_r});
+    end
 end
 
 // DISPLAYMODE
