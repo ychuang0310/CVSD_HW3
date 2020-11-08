@@ -9,14 +9,20 @@
     `define INFILE "../00_TESTBED/PATTERN/indata1.dat"
     `define OPFILE "../00_TESTBED/PATTERN/opmode1.dat"
     `define GOLDEN "../00_TESTBED/PATTERN/golden1.dat"
+	`define IN_END 24'b100000101100000001010010
+	`define GOLDEN_END 191
 `elsif tb2
     `define INFILE "../00_TESTBED/PATTERN/indata2.dat"
     `define OPFILE "../00_TESTBED/PATTERN/opmode2.dat"
     `define GOLDEN "../00_TESTBED/PATTERN/golden2.dat"
+	`define IN_END 24'b111000011010111001100011
+	`define GOLDEN_END 319
 `else
     `define INFILE "../00_TESTBED/PATTERN/indata0.dat"
     `define OPFILE "../00_TESTBED/PATTERN/opmode0.dat"
     `define GOLDEN "../00_TESTBED/PATTERN/golden0.dat"
+	`define IN_END 24'b001101000101000000101010
+	`define GOLDEN_END 223
 `endif
 
 `define SDFFILE "ipdc_syn.sdf"  // Modify your sdf file name
@@ -157,9 +163,7 @@ always@(negedge clk)begin
 	if(j==64)begin
 		startdata <=0;
 		in_valid_r <=0;
-		// in_data_r <=24'b001101000101000000101010; //tb0
-		in_data_r <=24'b100000101100000001010010; //tb1
-		// in_data_r <=24'b111000011010111001100011; //tb2
+		in_data_r <= `IN_END;
 		
 		//in_data_r <=0;	
 	end
@@ -183,9 +187,7 @@ always@(negedge clk)begin
 //		$display("%d,op:%d",k,topcode);		
 //		$finish;
 //	end
-	// if(out_data===golden_mem[223] && (k==224))begin //tb0=223, tb1=191, tb2=319
-	if(out_data===golden_mem[191] && (k==192))begin //tb0=223, tb1=191, tb2=319
-	// if(out_data===golden_mem[319] && (k==320))begin //tb0=223, tb1=191, tb2=319
+	if(out_data===golden_mem[`GOLDEN_END] && (`GOLDEN_END+1)) begin
 		$display("PASS!");
 		$finish;
 	end

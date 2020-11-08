@@ -50,6 +50,8 @@ reg     [ 1: 0] Display_X_Offset_w, Display_Y_Offset_w;
 wire    [ 7: 0] Sram_Data_o [0:2];
 reg     [ 7: 0] Sram_Data_i [0:2];
 reg     [ 7: 0] Sram_Addr;
+reg     [ 1: 0] Sram_Addr_Prefix_r;
+reg     [ 1: 0] Sram_Addr_Prefix_w;
 wire            Sram_Cen;
 reg             Sram_Wen;
 
@@ -133,14 +135,15 @@ always@(*) begin
 
     // SRAM
     {Sram_Data_i[2], Sram_Data_i[1], Sram_Data_i[0]} = 24'b0;
-    Sram_Addr       = 8'b0;
-    Sram_Wen        = 1'b1;
+    Sram_Addr           = {Sram_Addr_Prefix_r, 6'b0};
+    Sram_Addr_Prefix_w  = Sram_Addr_Prefix_r;
+    Sram_Wen            = 1'b1;
 
     // OUTPUT
-    o_out_valid_w   = 1'b0;
+    o_out_valid_w       = 1'b0;
 
     // STATE
-    IPDC_State_w = IPDC_State_r;
+    IPDC_State_w        = IPDC_State_r;
 
     // DISPLAY
     Display_State_w = `Display_State_Idle;
@@ -173,7 +176,7 @@ always@(*) begin
         `IPDC_State_Load: begin
             if(Load_Finish)     IPDC_State_w = `IPDC_State_Ready;
 
-            Sram_Addr = {2'b0, Iterator_Y_r, Iterator_X_r};
+            Sram_Addr = {Sram_Addr_Prefix_r, Iterator_Y_r, Iterator_X_r};
             {Sram_Data_i[2], Sram_Data_i[1], Sram_Data_i[0]} = i_in_data;
             Sram_Wen = 1'b0;
 
@@ -185,7 +188,7 @@ always@(*) begin
             if(Display_Finish)  IPDC_State_w = `IPDC_State_Ready;
 
             Display_State_w = `Display_State_Display;
-            Sram_Addr = {2'b0, Display_Y, Display_X};
+            Sram_Addr = {Sram_Addr_Prefix_r, Display_Y, Display_X};
             {Display_Y_Offset_w, Display_X_Offset_w}  = {Display_Y_Offset_r, Display_X_Offset_r} + 4'b1;
             o_out_valid_w = (Display_State_r == `Display_State_Idle) | (|{Display_Y_Offset_r, Display_X_Offset_r});
         end
@@ -268,8 +271,10 @@ always@(*) begin
                 end
             endcase
 
-            Sram_Addr = {2'b0, Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]}, Iterator_X_r + {Median_State_r[1], Median_State_r[1:0]}};
+            Sram_Addr[7:6] = (Median_State_r == `Median_State_Write) ? (Sram_Addr_Prefix_r + 2'b1) : Sram_Addr_Prefix_r;
+            Sram_Addr[5:0] = {Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]}, Iterator_X_r + {Median_State_r[1], Median_State_r[1:0]}};
             o_out_valid_w = (Median_State_r == `Median_State_Write) & (&{Iterator_Y_r, Iterator_X_r});
+            if(o_out_valid_w) Sram_Addr_Prefix_w = Sram_Addr_Prefix_r + 2'b1;
         end
 
         `IPDC_State_RBG: begin
@@ -302,6 +307,7 @@ always@(posedge i_clk or negedge i_rst_n) begin
         {Iterator_Y_r, Iterator_X_r}                <= 6'b0;
         {Origin_Y_r, Origin_X_r}                    <= 6'b0;
         {Display_Y_Offset_r, Display_X_Offset_r}    <= 4'b0;
+        Sram_Addr_Prefix_r                          <= 2'b0;
         Display_Mode_r                              <= `Display_Mode_RGB;
 
         for(k=0; k<3; k=k+1) median_i0_r[k]         <= 8'b0;
@@ -323,6 +329,7 @@ always@(posedge i_clk or negedge i_rst_n) begin
         {Iterator_Y_r, Iterator_X_r}                <= {Iterator_Y_w, Iterator_X_w};
         {Origin_Y_r, Origin_X_r}                    <= {Origin_Y_w, Origin_X_w};
         {Display_Y_Offset_r, Display_X_Offset_r}    <= {Display_Y_Offset_w, Display_X_Offset_w};
+        Sram_Addr_Prefix_r                          <= Sram_Addr_Prefix_w;
         Display_Mode_r                              <= Display_Mode_w;
 
         for(k=0; k<3; k=k+1) median_i0_r[k]         <= median_i0_w[k];
