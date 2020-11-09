@@ -1,7 +1,7 @@
 `timescale 1ns/100ps
-`define CYCLE       8.0     // CLK period.
+`define CYCLE       9.0     // CLK period.
 `define HCYCLE      (`CYCLE/2)
-`define MAX_CYCLE   10000000
+`define MAX_CYCLE   100000
 `define RST_DELAY   5.0
 
 

@@ -20,7 +20,7 @@ check_timing > Report/check_timing.txt
 
 uniquify
 set_fix_multiple_port_nets -all -buffer_constants [get_designs *]
-compile
+ultra_compile
 
 change_names -hierarchy -rule verilog
 change_names -hierarchy -rules name_rule
