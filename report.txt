@@ -1,7 +1,7 @@
 StudentID: 
-
+    r09921049
 Clock period: (ns)
-
+    9
 Area :  (um2)
 
 Latency:
