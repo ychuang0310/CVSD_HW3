@@ -1,28 +1,22 @@
 `timescale 1ns/100ps
-`define CYCLE       5	     // CLK period.
+`define CYCLE       9.0     // CLK period.
 `define HCYCLE      (`CYCLE/2)
-`define MAX_CYCLE   1000
-`define RST_DELAY   5
+`define MAX_CYCLE   10000000
+`define RST_DELAY   5.0
 
 
 `ifdef tb1
     `define INFILE "../00_TESTBED/PATTERN/indata1.dat"
     `define OPFILE "../00_TESTBED/PATTERN/opmode1.dat"
     `define GOLDEN "../00_TESTBED/PATTERN/golden1.dat"
-	`define IN_END 24'b100000101100000001010010
-	`define GOLDEN_END 191
 `elsif tb2
     `define INFILE "../00_TESTBED/PATTERN/indata2.dat"
     `define OPFILE "../00_TESTBED/PATTERN/opmode2.dat"
     `define GOLDEN "../00_TESTBED/PATTERN/golden2.dat"
-	`define IN_END 24'b111000011010111001100011
-	`define GOLDEN_END 319
 `else
     `define INFILE "../00_TESTBED/PATTERN/indata0.dat"
     `define OPFILE "../00_TESTBED/PATTERN/opmode0.dat"
     `define GOLDEN "../00_TESTBED/PATTERN/golden0.dat"
-	`define IN_END 24'b001101000101000000101010
-	`define GOLDEN_END 223
 `endif
 
 `define SDFFILE "ipdc_syn.sdf"  // Modify your sdf file name
@@ -31,10 +25,10 @@
 module testbed;
 
 reg clk, rst_n;
-wire        op_valid;
-wire [ 2:0] op_mode;
-wire        in_valid;
-wire [23:0] in_data;
+reg         op_valid;
+reg  [ 2:0] op_mode;
+reg         in_valid;
+reg  [23:0] in_data;
 wire        in_ready;
 wire        out_valid;
 wire [23:0] out_data;
@@ -47,20 +41,7 @@ reg [23:0] golden_mem [511:0];
 // ==============================================
 // TODO: Declare regs and wires you need
 // ==============================================
-reg        op_valid_r;
-reg [ 2:0] op_mode_r;
-reg        in_valid_r;
-reg [23:0] in_data_r;
-reg        in_ready_r;
-reg        out_valid_r;
-reg [23:0] out_data_r;
-reg [2:0]topcode;
-
-assign op_valid = op_valid_r;
-assign op_mode = op_mode_r;
-assign in_data = in_data_r;
-assign in_valid = in_valid_r;
-
+integer i, j, golden_index;
 
 
 // For gate-level simulation only
@@ -106,91 +87,59 @@ initial begin
     $finish;
 end
 
-
-
-
 // ==============================================
 // TODO: Check pattern after process finish
 // ==============================================
 
-integer ti,j,k;
-reg set;
-reg startdata;
-reg fuckload;
-
-always@( negedge clk or negedge rst_n)begin
-	if(!rst_n)begin
-		op_valid_r <= 0;
-		op_mode_r <= 0;
-		in_data_r <=0;
-		in_valid_r <=0;
-		ti <= 0;
-		j <=0;
-		k<=0;
-		set <=1;
-	end else if(out_valid==1) begin
-		set <= 1;
-		//if(topcode==1 || topcode==2 || topcode==3 || topcode==4)begin
-			
-		//end else
-		//	ti=ti+1;
-	end else if(out_valid==0 &&set==1)begin
-		op_valid_r <= 1;
-		op_mode_r <= opmode_mem[ti];
-		topcode <= opmode_mem[ti];
-		set <= 0;
-		if(opmode_mem[ti]==0)
-			startdata <=1;
-		else
-			startdata <=0;
-		ti=ti+1;
-	end else if(out_valid==0 &&set==0)begin
-		//ti=ti+1;
-		op_valid_r <= 0;
-		op_mode_r <= 0;
-	end
-end
-
-always@(negedge clk)begin 
-	if(startdata==1&&in_ready==1)begin
-		if(j<64)begin
-			in_data_r <= indata_mem[j];
-			in_valid_r <= 1;
-		end
-		j=j+1;
-	end
-
-	if(j==64)begin
-		startdata <=0;
-		in_valid_r <=0;
-		in_data_r <= `IN_END;
-		
-		//in_data_r <=0;	
-	end
-	
-end
-
-always@(negedge clk)begin
-	if(out_valid==1)begin
-		if(topcode==1 || topcode==2 || topcode==3 || topcode==4)begin
-			if(out_data=== golden_mem[k])
-				k=k+1;
-			else begin
-				$display("fuck this homework:/");
-				$display("your num :%b,golden data:%b,address:%d",out_data,golden_mem[k],k);
-				//k=k+1;
-				$finish;
-			end
-		end
-	end
-//	if(k%16==0)begin
-//		$display("%d,op:%d",k,topcode);		
-//		$finish;
-//	end
-	if(out_data===golden_mem[`GOLDEN_END] && (`GOLDEN_END+1)) begin
-		$display("PASS!");
-		$finish;
-	end
+initial begin
+    golden_index = 0;
+    op_valid = 1'b0;
+    op_mode = 3'b0;
+    in_valid = 1'b0;
+    in_data = 24'b0;
+    #(`CYCLE);
+    wait (rst_n == 1'b1);
+    for (i = 0; i < 64; i = i + 1) begin
+        @(negedge clk)
+        op_valid = 1'b1;
+        op_mode = opmode_mem[i];
+        #(`CYCLE);
+        op_valid = 1'b0;
+        op_mode = 3'd0;
+        if (opmode_mem[i] == 3'd0) begin
+            for (j = 0; j < 64; j = j + 1) begin
+                in_valid = 1'b1;
+                in_data = indata_mem[j];
+                #(`CYCLE);
+            end
+            in_data = 24'd0;
+            in_valid = 1'b0;
+            wait (out_valid == 1'b1);
+            #(`CYCLE);
+            $display("op(%d) done", opmode_mem[i]);
+        end
+        if (opmode_mem[i] >= 3'd1 & opmode_mem[i] <= 3'd4) begin
+            for (j = golden_index; j < golden_index + 16; j = j + 1) begin
+                wait (out_valid == 1'b1);
+                @(negedge clk)
+                if (golden_mem[j] != out_data) begin
+                    $display("Error!, (%d)th golden data: op=(%d), golden=(%h), yours=(%h)",
+                            j, opmode_mem[i], golden_mem[j], out_data);
+                    $finish;
+                end
+                #(`CYCLE * 0.5);
+            end
+            golden_index = golden_index + 16;
+            $display("op(%d) correct!", opmode_mem[i]);
+        end
+        if (opmode_mem[i] >= 3'd5 & opmode_mem[i] <= 3'd7) begin
+            wait (out_valid == 1'b1);
+            #(`CYCLE);
+            $display("op(%d) done!", opmode_mem[i]);
+        end
+    end
+    $display("Simulation Pass!");
+    $finish;
 end
 
 endmodule

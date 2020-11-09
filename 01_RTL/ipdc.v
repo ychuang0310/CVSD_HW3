@@ -83,7 +83,7 @@ integer k;
 // sram[0:2]: channel 0 ~ 2 (RGB | YCbCr)
 generate
     for(i=0; i<3; i=i+1) begin: u_sram
-        sram_256x8 sram(Sram_Data_o[i], i_clk, Sram_Cen, Sram_Wen, Sram_Addr, Sram_Data_i[i]);
+        sram_256x8 sram(.Q(Sram_Data_o[i]), .CLK(i_clk), .CEN(Sram_Cen), .WEN(Sram_Wen), .A(Sram_Addr), .D(Sram_Data_i[i]));
     end
 endgenerate
 
@@ -271,10 +271,10 @@ always@(*) begin
                 end
             endcase
 
-            Sram_Addr[7:6] = (Median_State_r == `Median_State_Write) ? (Sram_Addr_Prefix_r + 2'b1) : Sram_Addr_Prefix_r;
+            Sram_Addr[7:6] = (Median_State_r == `Median_State_Write) ? (Sram_Addr_Prefix_r ^ 2'b1) : Sram_Addr_Prefix_r;
             Sram_Addr[5:0] = {Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]}, Iterator_X_r + {Median_State_r[1], Median_State_r[1:0]}};
             o_out_valid_w = (Median_State_r == `Median_State_Write) & (&{Iterator_Y_r, Iterator_X_r});
-            if(o_out_valid_w) Sram_Addr_Prefix_w = Sram_Addr_Prefix_r + 2'b1;
+            if(o_out_valid_w) Sram_Addr_Prefix_w = Sram_Addr_Prefix_r ^ 2'b1;
         end
 
         `IPDC_State_RBG: begin

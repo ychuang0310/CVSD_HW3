@@ -9,7 +9,7 @@ read_file -format verilog  "../01_RTL/$DESIGN.v"
 current_design [get_designs $DESIGN]
 link
 
-source -echo -verbose ./HW3_ipdc.sdc
+source -echo -verbose ./ipdc_dc.sdc
 
 # Compile Design
 current_design [get_designs ${DESIGN}]
