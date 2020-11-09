@@ -26,6 +26,9 @@
 `define Median_State_Read_6     5'b00100
 `define Median_State_Read_7     5'b00101
 `define Median_State_Read_8     5'b11111
+`define Median_State_Median_0   5'b11000
+`define Median_State_Median_1   5'b11001
+`define Median_State_Median_2   5'b11010
 `define Median_State_Write      5'b10000
 
 // DISPLAY MODE

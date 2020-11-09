@@ -89,8 +89,8 @@ endgenerate
 
 generate
     for(i=0; i<3; i=i+1) begin: u_median
-        median_9 fuck(median_i0_r[i], median_i1_r[i], median_i2_r[i], median_i3_r[i], median_i4_r[i],
-                      median_i5_r[i], median_i6_r[i], median_i7_r[i], median_i8_r[i], Median[i]);
+        median_9 fuck(i_clk, i_rst_n, median_i0_r[i], median_i1_r[i], median_i2_r[i], median_i3_r[i], median_i4_r[i],
+                                      median_i5_r[i], median_i6_r[i], median_i7_r[i], median_i8_r[i], Median[i]);
     end
 endgenerate
 
@@ -260,8 +260,17 @@ always@(*) begin
                     for(k=0; k<3; k=k+1) median_i7_w[k] = (iter_b_edge) ? 8'b0 : Sram_Data_o[k];
                 end
                 `Median_State_Read_8: begin
-                    Median_State_w = `Median_State_Write;
+                    Median_State_w = `Median_State_Median_0;
                     for(k=0; k<3; k=k+1) median_i8_w[k] = (iter_r_edge | iter_b_edge) ? 8'b0 : Sram_Data_o[k];
+                end
+                `Median_State_Median_0: begin
+                    Median_State_w = `Median_State_Median_1;
+                end
+                `Median_State_Median_1: begin
+                    Median_State_w = `Median_State_Median_2;
+                end
+                `Median_State_Median_2: begin
+                    Median_State_w = `Median_State_Write;
                 end
                 `Median_State_Write: begin
                     Median_State_w = `Median_State_Idle;
