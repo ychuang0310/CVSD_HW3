@@ -1,0 +1,64 @@
+Information: Updating design information... (UID-85)
+ 
+****************************************
+Report : timing
+        -path full
+        -delay max
+        -max_paths 1
+Design : ipdc
+Version: N-2017.09-SP2
+Date   : Tue Nov 10 02:53:04 2020
+****************************************
+
+Operating Conditions: slow   Library: slow
+Wire Load Model Mode: top
+
+  Startpoint: u_sram_1__sram
+              (rising edge-triggered flip-flop clocked by i_clk)
+  Endpoint: o_out_data[23]
+            (output port clocked by i_clk)
+  Path Group: i_clk
+  Path Type: max
+
+  Des/Clust/Port     Wire Load Model       Library
+  ------------------------------------------------
+  ipdc               tsmc13_wl10           slow
+
+  Point                                    Incr       Path
+  -----------------------------------------------------------
+  clock i_clk (rise edge)                  0.00       0.00
+  clock network delay (ideal)              0.50       0.50
+  u_sram_1__sram/CLK (sram_256x8)          0.00       0.50 r
+  u_sram_1__sram/Q[0] (sram_256x8)         2.07       2.57 f
+  U3749/Y (INVX6)                          0.10       2.67 r
+  U2977/Y (INVX8)                          0.08       2.74 f
+  U3785/Y (OAI21X4)                        0.11       2.85 r
+  U3518/Y (NAND3X8)                        0.11       2.96 f
+  U3522/Y (NAND2X8)                        0.10       3.06 r
+  U3521/Y (NAND2X6)                        0.07       3.13 f
+  U2788/Y (NAND2X4)                        0.07       3.20 r
+  U3819/Y (XOR2X4)                         0.13       3.32 f
+  U3821/CO (ADDFHX4)                       0.23       3.55 f
+  U3824/S (CMPR22X4)                       0.13       3.68 r
+  U3550/Y (NOR2X8)                         0.12       3.80 f
+  U3264/Y (NOR2X4)                         0.17       3.96 r
+  U4545/Y (NAND2X4)                        0.10       4.07 f
+  U3556/Y (OAI21X4)                        0.15       4.21 r
+  U4549/Y (XOR2X4)                         0.13       4.34 r
+  U4551/Y (OAI2BB1X4)                      0.26       4.60 r
+  o_out_data[23] (out)                     0.00       4.60 r
+  data arrival time                                   4.60
+
+  clock i_clk (rise edge)                  8.40       8.40
+  clock network delay (ideal)              0.50       8.90
+  clock uncertainty                       -0.10       8.80
+  output external delay                   -4.20       4.60
+  data required time                                  4.60
+  -----------------------------------------------------------
+  data required time                                  4.60
+  data arrival time                                  -4.60
+  -----------------------------------------------------------
+  slack (MET)                                         0.00
+
+
+1
