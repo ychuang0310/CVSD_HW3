@@ -28,6 +28,7 @@ reg     [ 4: 0] Median_State_r, Median_State_w;
 //ITERATOR
 reg     [ 2: 0] Iterator_X_r, Iterator_Y_r;
 reg     [ 2: 0] Iterator_X_w, Iterator_Y_w;
+wire    [ 2: 0] Iterator_X_Add_1;
 
 // LOAD
 wire            Load_Finish;
@@ -69,7 +70,7 @@ reg     [ 7: 0] median_m4_r [0:2], median_m5_r [0: 2], median_m6_r [0: 2], media
 reg     [ 7: 0] median_m0_w [0:2], median_m1_w [0: 2], median_m2_w [0: 2], median_m3_w [0: 2];
 reg     [ 7: 0] median_m4_w [0:2], median_m5_w [0: 2], median_m6_w [0: 2], median_m7_w [0: 2];
 
-wire            iter_l_edge, iter_r_edge, iter_t_edge, iter_b_edge;
+wire            iter_t_edge, iter_b_edge;
 wire            Median_Finish;
 
 // OUTPUT
@@ -105,6 +106,9 @@ ycbcr u_ycbcr(Sram_Data_o[0], Sram_Data_o[1], Sram_Data_o[2], Y, Cb, Cr);
 // Continuous Assignment
 // ---------------------------------------------------------------------------
 // ---- Add your own wire data assignments here if needed ---- //
+// ITERATOR
+assign Iterator_X_Add_1 = Iterator_X_r + 3'b1;
+
 // SRAM
 assign Sram_Cen         = ~i_rst_n;
 
@@ -124,8 +128,6 @@ assign o_out_data       = (Display_State_r != `Display_State_Display) ? 24'b0 :
 
 // MIDEAN
 assign Median_Finish    = (IPDC_State_r == `IPDC_State_Median) & o_out_valid_w;
-// assign iter_l_edge      = ~|Iterator_X_r;
-assign iter_r_edge      =  &Iterator_X_r;
 assign iter_t_edge      = ~|Iterator_Y_r;
 assign iter_b_edge      =  &Iterator_Y_r;
 
@@ -265,13 +267,13 @@ always@(*) begin
                     Median_State_w = `Median_State_Read_7;
                     for(k=0; k<3; k=k+1) median_i4_w[k] = Sram_Data_o[k];
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                 end
                 `Median_State_Read_5: begin
                     Median_State_w = `Median_State_Read_8;
                     for(k=0; k<3; k=k+1) median_i5_w[k] = Sram_Data_o[k];
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                 end
                 `Median_State_Read_7: begin
                     Median_State_w = `Median_State_Read_2;
@@ -305,13 +307,13 @@ always@(*) begin
                     for(k=0; k<3; k=k+1) median_i5_w[k] = 8'b0;
                     for(k=0; k<3; k=k+1) median_i8_w[k] = 8'b0;
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                 end
                 `Median_State_Write_1: begin
                     Median_State_w = `Median_State_Write_2;
                     for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m1_r[k];
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                 end
                 `Median_State_Write_2: begin
                     Median_State_w = `Median_State_Write_3;
@@ -319,13 +321,13 @@ always@(*) begin
 
                     for(k=0; k<3; k=k+1) median_m6_w[k] = Median[k];
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                 end
                 `Median_State_Write_3: begin
                     Median_State_w = `Median_State_Write_4;
                     for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m3_r[k];
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                     
                     for(k=0; k<3; k=k+1) median_m7_w[k] = Median[k];
                 end
@@ -333,25 +335,25 @@ always@(*) begin
                     Median_State_w = `Median_State_Write_5;
                     for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m4_r[k];
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                 end
                 `Median_State_Write_5: begin
                     Median_State_w = `Median_State_Write_6;
                     for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m5_r[k];
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                 end
                 `Median_State_Write_6: begin
                     Median_State_w = `Median_State_Write_7;
                     for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m6_r[k];
 
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                 end
                 `Median_State_Write_7: begin
                     Median_State_w = `Median_State_Idle;
                     for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m7_r[k];
                     
-                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_X_w = Iterator_X_Add_1;
                     Iterator_Y_w = Iterator_Y_r + 3'b1;
                 end
             endcase
