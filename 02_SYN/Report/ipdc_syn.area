@@ -3,7 +3,7 @@
 Report : area
 Design : ipdc
 Version: N-2017.09-SP2
-Date   : Tue Nov 10 02:53:04 2020
+Date   : Tue Nov 10 12:34:02 2020
 ****************************************
 
 Library(s) Used:
@@ -12,20 +12,20 @@ Library(s) Used:
     sram_256x8 (File: /home/raid7_2/user09/r9921049/CVSD_HW/CVSD_HW3/sram_256x8/sram_256x8_slow_syn.db)
 
 Number of ports:                           57
-Number of nets:                          3822
-Number of cells:                         3343
-Number of combinational cells:           2806
-Number of sequential cells:               534
+Number of nets:                          4406
+Number of cells:                         3931
+Number of combinational cells:           3200
+Number of sequential cells:               728
 Number of macros/black boxes:               3
-Number of buf/inv:                        489
-Number of references:                     152
+Number of buf/inv:                        536
+Number of references:                     155
 
-Combinational area:              28355.066855
-Buf/Inv area:                     2491.783183
-Noncombinational area:           17255.767838
+Combinational area:              31960.344312
+Buf/Inv area:                     2676.799770
+Noncombinational area:           23452.975033
 Macro/Black Box area:            62429.712891
-Net Interconnect area:          424902.160156
+Net Interconnect area:          515435.962952
 
-Total cell area:                108040.547583
-Total area:                     532942.707740
+Total cell area:                117843.032235
+Total area:                     633278.995187
 1

@@ -64,6 +64,11 @@ reg     [ 7: 0] median_i3_w [0:2], median_i4_w [0:2], median_i5_w [0:2];
 reg     [ 7: 0] median_i6_w [0:2], median_i7_w [0:2], median_i8_w [0:2];
 wire    [ 7: 0] Median[0:2];
 
+reg     [ 7: 0] median_m0_r [0:2], median_m1_r [0: 2], median_m2_r [0: 2], median_m3_r [0: 2];
+reg     [ 7: 0] median_m4_r [0:2], median_m5_r [0: 2], median_m6_r [0: 2], median_m7_r [0: 2];
+reg     [ 7: 0] median_m0_w [0:2], median_m1_w [0: 2], median_m2_w [0: 2], median_m3_w [0: 2];
+reg     [ 7: 0] median_m4_w [0:2], median_m5_w [0: 2], median_m6_w [0: 2], median_m7_w [0: 2];
+
 wire            iter_l_edge, iter_r_edge, iter_t_edge, iter_b_edge;
 wire            Median_Finish;
 
@@ -161,6 +166,15 @@ always@(*) begin
     for(k=0; k<3; k=k+1) median_i7_w[k] = median_i7_r[k];
     for(k=0; k<3; k=k+1) median_i8_w[k] = median_i8_r[k];
 
+    for(k=0; k<3; k=k+1) median_m0_w[k] = median_m0_r[k];
+    for(k=0; k<3; k=k+1) median_m1_w[k] = median_m1_r[k];
+    for(k=0; k<3; k=k+1) median_m2_w[k] = median_m2_r[k];
+    for(k=0; k<3; k=k+1) median_m3_w[k] = median_m3_r[k];
+    for(k=0; k<3; k=k+1) median_m4_w[k] = median_m4_r[k];
+    for(k=0; k<3; k=k+1) median_m5_w[k] = median_m5_r[k];
+    for(k=0; k<3; k=k+1) median_m6_w[k] = median_m6_r[k];
+    for(k=0; k<3; k=k+1) median_m7_w[k] = median_m7_r[k];
+
     // DISPLAYMODE
     Display_Mode_w = Display_Mode_r;
 
@@ -230,76 +244,127 @@ always@(*) begin
                     for(k=0; k<3; k=k+1) median_i3_w[k] = 8'b0;
                     for(k=0; k<3; k=k+1) median_i6_w[k] = 8'b0;
                 end
-                // `Median_State_Read_0: begin
-                //     Median_State_w = `Median_State_Read_3;
-                //     for(k=0; k<3; k=k+1) median_i0_w[k] = (iter_l_edge | iter_t_edge) ? 8'b0 : Sram_Data_o[k];
-                // end
                 `Median_State_Read_1: begin
                     Median_State_w = `Median_State_Read_4;
                     for(k=0; k<3; k=k+1) median_i1_w[k] = (iter_t_edge) ? 8'b0 : Sram_Data_o[k];
                 end
                 `Median_State_Read_2: begin
                     Median_State_w = `Median_State_Read_5;
-                    for(k=0; k<3; k=k+1) median_i2_w[k] = (iter_r_edge | iter_t_edge) ? 8'b0 : Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i2_w[k] = (iter_t_edge) ? 8'b0 : Sram_Data_o[k];
+                    
+                    if(Iterator_X_r != 2'b01) begin
+                        for(k=0; k<3; k=k+1) median_i0_w[k] = median_i1_r[k];
+                        for(k=0; k<3; k=k+1) median_i3_w[k] = median_i4_r[k];
+                        for(k=0; k<3; k=k+1) median_i6_w[k] = median_i7_r[k];
+                        for(k=0; k<3; k=k+1) median_i1_w[k] = median_i2_r[k];
+                        for(k=0; k<3; k=k+1) median_i4_w[k] = median_i5_r[k];
+                        for(k=0; k<3; k=k+1) median_i7_w[k] = median_i8_r[k];
+                    end
                 end
-                // `Median_State_Read_3: begin
-                //     Median_State_w = `Median_State_Read_6;
-                //     for(k=0; k<3; k=k+1) median_i3_w[k] = (iter_l_edge) ? 8'b0 : Sram_Data_o[k];
-                // end
                 `Median_State_Read_4: begin
                     Median_State_w = `Median_State_Read_7;
                     for(k=0; k<3; k=k+1) median_i4_w[k] = Sram_Data_o[k];
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
                 end
                 `Median_State_Read_5: begin
                     Median_State_w = `Median_State_Read_8;
-                    for(k=0; k<3; k=k+1) median_i5_w[k] = (iter_r_edge) ? 8'b0 : Sram_Data_o[k];
+                    for(k=0; k<3; k=k+1) median_i5_w[k] = Sram_Data_o[k];
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
                 end
-                // `Median_State_Read_6: begin
-                //     Median_State_w = `Median_State_Read_1;
-                //     for(k=0; k<3; k=k+1) median_i6_w[k] = (iter_l_edge | iter_b_edge) ? 8'b0 : Sram_Data_o[k];
-                // end
                 `Median_State_Read_7: begin
                     Median_State_w = `Median_State_Read_2;
                     for(k=0; k<3; k=k+1) median_i7_w[k] = (iter_b_edge) ? 8'b0 : Sram_Data_o[k];
-                    if(&Iterator_X_r) begin
-                        Median_State_w = `Median_State_Median_0;
-                        for(k=0; k<3; k=k+1) median_i2_w[k] = 8'b0;
-                        for(k=0; k<3; k=k+1) median_i5_w[k] = 8'b0;
-                        for(k=0; k<3; k=k+1) median_i8_w[k] = 8'b0;
-                    end
                 end
                 `Median_State_Read_8: begin
-                    Median_State_w = `Median_State_Median_0;
-                    for(k=0; k<3; k=k+1) median_i8_w[k] = (iter_r_edge | iter_b_edge) ? 8'b0 : Sram_Data_o[k];
-                end
-                `Median_State_Median_0: begin
-                    Median_State_w = `Median_State_Median_1;
-                end
-                `Median_State_Median_1: begin
-                    Median_State_w = `Median_State_Median_2;
-                end
-                `Median_State_Median_2: begin
-                    Median_State_w = `Median_State_Write;
-                end
-                `Median_State_Write: begin
-                    Median_State_w = (&Iterator_X_r) ? `Median_State_Idle : `Median_State_Shift;
-                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = Median[k];
-                    Sram_Wen = 1'b0;
-                    {Iterator_Y_w, Iterator_X_w} = {Iterator_Y_r, Iterator_X_r} + 6'b1;
-                end
-                `Median_State_Shift: begin
                     Median_State_w = `Median_State_Read_2;
+                    if(~|Iterator_X_r) Median_State_w = `Median_State_Write_0;
+                    for(k=0; k<3; k=k+1) median_i8_w[k] = (iter_b_edge) ? 8'b0 : Sram_Data_o[k];
+
+                    case(Iterator_X_r)
+                        3'd3: for(k=0; k<3; k=k+1) median_m0_w[k] = Median[k];
+                        3'd4: for(k=0; k<3; k=k+1) median_m1_w[k] = Median[k];
+                        3'd5: for(k=0; k<3; k=k+1) median_m2_w[k] = Median[k];
+                        3'd6: for(k=0; k<3; k=k+1) median_m3_w[k] = Median[k];
+                        3'd7: for(k=0; k<3; k=k+1) median_m4_w[k] = Median[k];
+                        3'd0: for(k=0; k<3; k=k+1) median_m5_w[k] = Median[k];
+                    endcase
+                end
+                `Median_State_Write_0: begin
+                    Median_State_w = `Median_State_Write_1;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m0_r[k];
+
                     for(k=0; k<3; k=k+1) median_i0_w[k] = median_i1_r[k];
                     for(k=0; k<3; k=k+1) median_i3_w[k] = median_i4_r[k];
                     for(k=0; k<3; k=k+1) median_i6_w[k] = median_i7_r[k];
                     for(k=0; k<3; k=k+1) median_i1_w[k] = median_i2_r[k];
                     for(k=0; k<3; k=k+1) median_i4_w[k] = median_i5_r[k];
                     for(k=0; k<3; k=k+1) median_i7_w[k] = median_i8_r[k];
+                    for(k=0; k<3; k=k+1) median_i2_w[k] = 8'b0;
+                    for(k=0; k<3; k=k+1) median_i5_w[k] = 8'b0;
+                    for(k=0; k<3; k=k+1) median_i8_w[k] = 8'b0;
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
+                end
+                `Median_State_Write_1: begin
+                    Median_State_w = `Median_State_Write_2;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m1_r[k];
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
+                end
+                `Median_State_Write_2: begin
+                    Median_State_w = `Median_State_Write_3;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m2_r[k];
+
+                    for(k=0; k<3; k=k+1) median_m6_w[k] = Median[k];
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
+                end
+                `Median_State_Write_3: begin
+                    Median_State_w = `Median_State_Write_4;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m3_r[k];
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    
+                    for(k=0; k<3; k=k+1) median_m7_w[k] = Median[k];
+                end
+                `Median_State_Write_4: begin
+                    Median_State_w = `Median_State_Write_5;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m4_r[k];
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
+                end
+                `Median_State_Write_5: begin
+                    Median_State_w = `Median_State_Write_6;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m5_r[k];
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
+                end
+                `Median_State_Write_6: begin
+                    Median_State_w = `Median_State_Write_7;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m6_r[k];
+
+                    Iterator_X_w = Iterator_X_r + 3'b1;
+                end
+                `Median_State_Write_7: begin
+                    Median_State_w = `Median_State_Idle;
+                    for(k=0; k<3; k=k+1) Sram_Data_i[k] = median_m7_r[k];
+                    
+                    Iterator_X_w = Iterator_X_r + 3'b1;
+                    Iterator_Y_w = Iterator_Y_r + 3'b1;
                 end
             endcase
-            Sram_Addr[7:6] = (Median_State_r == `Median_State_Write) ? (Sram_Addr_Prefix_r ^ 2'b1) : Sram_Addr_Prefix_r;
-            Sram_Addr[5:0] = {Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]}, Iterator_X_r + {Median_State_r[1], Median_State_r[1:0]}};
-            o_out_valid_w = (Median_State_r == `Median_State_Write) & (&{Iterator_Y_r, Iterator_X_r});
+
+            Sram_Addr[7:6] = Sram_Addr_Prefix_r;
+            Sram_Addr[5:3] = Iterator_Y_r + {Median_State_r[3], Median_State_r[3:2]};
+            Sram_Addr[2:0] = Iterator_X_r;
+            if(Median_State_r[4:3] == 2'b10) begin
+                Sram_Addr[7:6] = Sram_Addr_Prefix_r ^ 2'b1;
+                Sram_Addr[5:3] = Iterator_Y_r;
+                Sram_Wen = 1'b0;
+            end
+            o_out_valid_w = (Median_State_r == `Median_State_Write_7) & (&Iterator_Y_r);
             if(o_out_valid_w) Sram_Addr_Prefix_w = Sram_Addr_Prefix_r ^ 2'b1;
         end
 
@@ -346,6 +411,15 @@ always@(posedge i_clk or negedge i_rst_n) begin
         for(k=0; k<3; k=k+1) median_i7_r[k]         <= 8'b0;
         for(k=0; k<3; k=k+1) median_i8_r[k]         <= 8'b0;
 
+        for(k=0; k<3; k=k+1) median_m0_r[k]         <= 8'b0;
+        for(k=0; k<3; k=k+1) median_m1_r[k]         <= 8'b0;
+        for(k=0; k<3; k=k+1) median_m2_r[k]         <= 8'b0;
+        for(k=0; k<3; k=k+1) median_m3_r[k]         <= 8'b0;
+        for(k=0; k<3; k=k+1) median_m4_r[k]         <= 8'b0;
+        for(k=0; k<3; k=k+1) median_m5_r[k]         <= 8'b0;
+        for(k=0; k<3; k=k+1) median_m6_r[k]         <= 8'b0;
+        for(k=0; k<3; k=k+1) median_m7_r[k]         <= 8'b0;
+
         o_out_valid_r                               <= 1'b0;
     end
     else begin
@@ -367,6 +441,15 @@ always@(posedge i_clk or negedge i_rst_n) begin
         for(k=0; k<3; k=k+1) median_i6_r[k]         <= median_i6_w[k];
         for(k=0; k<3; k=k+1) median_i7_r[k]         <= median_i7_w[k];
         for(k=0; k<3; k=k+1) median_i8_r[k]         <= median_i8_w[k];
+
+        for(k=0; k<3; k=k+1) median_m0_r[k]         <= median_m0_w[k];
+        for(k=0; k<3; k=k+1) median_m1_r[k]         <= median_m1_w[k];
+        for(k=0; k<3; k=k+1) median_m2_r[k]         <= median_m2_w[k];
+        for(k=0; k<3; k=k+1) median_m3_r[k]         <= median_m3_w[k];
+        for(k=0; k<3; k=k+1) median_m4_r[k]         <= median_m4_w[k];
+        for(k=0; k<3; k=k+1) median_m5_r[k]         <= median_m5_w[k];
+        for(k=0; k<3; k=k+1) median_m6_r[k]         <= median_m6_w[k];
+        for(k=0; k<3; k=k+1) median_m7_r[k]         <= median_m7_w[k];
 
         o_out_valid_r                               <=  o_out_valid_w;
     end
