@@ -2,32 +2,23 @@
 ****************************************
 check_design summary:
 Version:     N-2017.09-SP2
-Date:        Tue Nov 10 12:33:16 2020
+Date:        Mon Nov 16 14:01:04 2020
 ****************************************
 
                    Name                                            Total
 --------------------------------------------------------------------------------
-Cells                                                              14
-    Cells do not drive (LINT-1)                                    14
+Cells                                                               5
+    Cells do not drive (LINT-1)                                     5
 
 Nets                                                              192
     Unloaded nets (LINT-2)                                        192
 --------------------------------------------------------------------------------
 
-Warning: In design 'ipdc', cell 'C20997' does not drive any nets. (LINT-1)
+Warning: In design 'ipdc', cell 'C21002' does not drive any nets. (LINT-1)
 Warning: In design 'ipdc', cell 'B_51' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21015' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21020' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21112' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21113' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21162' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21163' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21164' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21165' does not drive any nets. (LINT-1)
+Warning: In design 'ipdc', cell 'C21021' does not drive any nets. (LINT-1)
+Warning: In design 'ipdc', cell 'C21026' does not drive any nets. (LINT-1)
 Warning: In design 'ipdc', cell 'C21166' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21167' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21168' does not drive any nets. (LINT-1)
-Warning: In design 'ipdc', cell 'C21169' does not drive any nets. (LINT-1)
 Warning: In design 'ipdc', net 'u_median[1].fuck/s20_h_w[0]' driven by pin 'u_median[1].fuck/s20/H[0]' has no loads. (LINT-2)
 Warning: In design 'ipdc', net 'u_median[1].fuck/s20_h_w[1]' driven by pin 'u_median[1].fuck/s20/H[1]' has no loads. (LINT-2)
 Warning: In design 'ipdc', net 'u_median[1].fuck/s20_h_w[2]' driven by pin 'u_median[1].fuck/s20/H[2]' has no loads. (LINT-2)

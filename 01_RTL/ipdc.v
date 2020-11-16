@@ -22,6 +22,7 @@ module ipdc (                       //Don't modify interface
 
 // STATE
 reg     [ 3: 0] IPDC_State_r, IPDC_State_w;
+reg             Load_State_r, Load_State_w;
 reg             Display_State_r, Display_State_w;
 reg     [ 4: 0] Median_State_r, Median_State_w;
 
@@ -113,7 +114,7 @@ assign Iterator_X_Add_1 = Iterator_X_r + 3'b1;
 assign Sram_Cen         = ~i_rst_n;
 
 // LOAD
-assign Load_Finish      = (IPDC_State_r == `IPDC_State_Load) & o_out_valid_w;
+assign Load_Finish      = o_out_valid_w;
 
 // DISPLAY
 assign Display_X        = Origin_X_r + {1'b0, Display_X_Offset_r};
@@ -151,6 +152,9 @@ always@(*) begin
 
     // STATE
     IPDC_State_w        = IPDC_State_r;
+
+    // LOAD
+    Load_State_w        = `Load_State_Load;
 
     // DISPLAY
     Display_State_w = `Display_State_Idle;
@@ -194,10 +198,11 @@ always@(*) begin
 
             Sram_Addr = {Sram_Addr_Prefix_r, Iterator_Y_r, Iterator_X_r};
             {Sram_Data_i[2], Sram_Data_i[1], Sram_Data_i[0]} = i_in_data;
-            Sram_Wen = 1'b0;
+            Sram_Wen = ~i_in_valid;
 
             if(i_in_valid) {Iterator_Y_w, Iterator_X_w} = {Iterator_Y_r, Iterator_X_r} + 6'b1;
-            o_out_valid_w = &{Iterator_Y_r ,Iterator_X_r};
+            if(&{Iterator_Y_r ,Iterator_X_r}) Load_State_w = `Load_State_Stall;
+            o_out_valid_w = (Load_State_r == `Load_State_Stall);
         end
 
         `IPDC_State_Display: begin
@@ -395,6 +400,7 @@ end
 always@(posedge i_clk or negedge i_rst_n) begin
     if(~i_rst_n) begin
         IPDC_State_r                                <= `IPDC_State_Idle;
+        Load_State_r                                <= `Load_State_Load;
         Display_State_r                             <= `Display_State_Idle;
         Median_State_r                              <= `Median_State_Idle;
         {Iterator_Y_r, Iterator_X_r}                <= 6'b0;
@@ -426,6 +432,7 @@ always@(posedge i_clk or negedge i_rst_n) begin
     end
     else begin
         IPDC_State_r                                <= IPDC_State_w;
+        Load_State_r                                <= Load_State_w;
         Display_State_r                             <= Display_State_w;
         Median_State_r                              <= Median_State_w;
         {Iterator_Y_r, Iterator_X_r}                <= {Iterator_Y_w, Iterator_X_w};

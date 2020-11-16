@@ -3,9 +3,9 @@ StudentID:
 Clock period: (ns)
     8.4
 Area :  (um2)
-    117843
+    117242
 Latency:
-    tb0: 316 (cycle)
-    tb1: 38 (cycle)
-    tb2: 606 (cycle)
+    tb0: 317 (cycle)
+    tb1: 39 (cycle)
+    tb2: 607 (cycle)
 

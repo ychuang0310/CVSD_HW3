@@ -11,6 +11,10 @@
 `define IPDC_State_Ready        4'd9
 `define IPDC_State_Display      4'd10
 
+// LOAD STATE
+`define Load_State_Load         1'b0
+`define Load_State_Stall        1'b1
+
 // DISPLAY STATE
 `define Display_State_Idle      1'b0
 `define Display_State_Display   1'b1
