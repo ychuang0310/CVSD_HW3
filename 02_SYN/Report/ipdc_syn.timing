@@ -7,16 +7,16 @@ Report : timing
         -max_paths 1
 Design : ipdc
 Version: N-2017.09-SP2
-Date   : Mon Nov 16 14:01:52 2020
+Date   : Mon Nov 16 15:57:54 2020
 ****************************************
 
 Operating Conditions: slow   Library: slow
 Wire Load Model Mode: top
 
-  Startpoint: u_sram_0__sram
+  Startpoint: median_i3_r_reg_1__2_
               (rising edge-triggered flip-flop clocked by i_clk)
-  Endpoint: o_out_data[13]
-            (output port clocked by i_clk)
+  Endpoint: u_median_1__fuck_s01_m_r_reg_1_
+            (rising edge-triggered flip-flop clocked by i_clk)
   Path Group: i_clk
   Path Type: max
 
@@ -24,35 +24,55 @@ Wire Load Model Mode: top
   ------------------------------------------------
   ipdc               tsmc13_wl10           slow
 
-  Point                                    Incr       Path
-  -----------------------------------------------------------
-  clock i_clk (rise edge)                  0.00       0.00
-  clock network delay (ideal)              0.50       0.50
-  u_sram_0__sram/CLK (sram_256x8)          0.00       0.50 r
-  u_sram_0__sram/Q[6] (sram_256x8)         2.07       2.57 f
-  U3703/Y (CLKINVX2)                       0.13       2.71 r
-  U3546/S (ADDHX2)                         0.15       2.85 r
-  U3545/S (ADDFHX2)                        0.40       3.25 f
-  U3827/Y (NAND2X1)                        0.33       3.59 r
-  U4062/Y (OAI21X4)                        0.22       3.81 f
-  U2933/Y (OAI2BB1X2)                      0.23       4.03 f
-  U4250/Y (CLKINVX2)                       0.11       4.14 r
-  U4251/Y (OAI2BB1X4)                      0.09       4.23 f
-  U4253/Y (XOR2X4)                         0.13       4.35 f
-  U4254/Y (OAI22X4)                        0.25       4.60 r
-  o_out_data[13] (out)                     0.00       4.60 r
-  data arrival time                                   4.60
+  Point                                                   Incr       Path
+  --------------------------------------------------------------------------
+  clock i_clk (rise edge)                                 0.00       0.00
+  clock network delay (ideal)                             0.50       0.50
+  median_i3_r_reg_1__2_/CK (DFFRX1)                       0.00       0.50 r
+  median_i3_r_reg_1__2_/Q (DFFRX1)                        0.70       1.20 r
+  U5265/Y (NOR2X1)                                        0.20       1.40 f
+  U5266/Y (AOI21X1)                                       0.26       1.66 r
+  U5269/Y (AOI21X1)                                       0.21       1.87 f
+  U5270/Y (OAI22X2)                                       0.19       2.06 r
+  U5271/Y (OAI2BB1X2)                                     0.11       2.17 f
+  U3266/Y (OAI2BB1X2)                                     0.19       2.36 f
+  U3260/Y (AND2X4)                                        0.20       2.56 f
+  U3166/Y (INVX12)                                        0.15       2.72 r
+  U5276/Y (MXI2X2)                                        0.39       3.11 r
+  U3736/Y (AOI21XL)                                       0.32       3.42 f
+  U3217/Y (AOI2BB2X2)                                     0.30       3.72 f
+  U5279/Y (OA21X4)                                        0.25       3.97 f
+  U5282/Y (OAI21X4)                                       0.12       4.09 r
+  U3211/Y (OAI2BB1X2)                                     0.14       4.23 f
+  U3349/Y (NAND2X1)                                       0.18       4.41 r
+  U3341/Y (NAND2X1)                                       0.16       4.57 f
+  U5283/Y (AND2X4)                                        0.21       4.78 f
+  U3203/Y (INVX12)                                        0.16       4.94 r
+  U3324/Y (MXI2X2)                                        0.30       5.24 f
+  U3319/CO (ACHCINX2)                                     0.23       5.46 r
+  U3053/Y (OAI2BB1X1)                                     0.17       5.63 f
+  U5528/Y (NAND2X2)                                       0.16       5.79 r
+  U5532/Y (OAI22X1)                                       0.16       5.96 f
+  U5533/Y (AOI2BB2X2)                                     0.33       6.28 f
+  U3301/Y (NAND2BX2)                                      0.25       6.53 f
+  U5535/Y (AOI222X1)                                      0.45       6.99 r
+  U5536/Y (OA22X4)                                        0.28       7.27 r
+  U3912/Y (INVX8)                                         0.15       7.42 f
+  U3113/Y (MX2X1)                                         0.33       7.75 r
+  u_median_1__fuck_s01_m_r_reg_1_/D (DFFRX1)              0.00       7.75 r
+  data arrival time                                                  7.75
 
-  clock i_clk (rise edge)                  8.40       8.40
-  clock network delay (ideal)              0.50       8.90
-  clock uncertainty                       -0.10       8.80
-  output external delay                   -4.20       4.60
-  data required time                                  4.60
-  -----------------------------------------------------------
-  data required time                                  4.60
-  data arrival time                                  -4.60
-  -----------------------------------------------------------
-  slack (MET)                                         0.00
+  clock i_clk (rise edge)                                 7.60       7.60
+  clock network delay (ideal)                             0.50       8.10
+  clock uncertainty                                      -0.10       8.00
+  u_median_1__fuck_s01_m_r_reg_1_/CK (DFFRX1)             0.00       8.00 r
+  library setup time                                     -0.25       7.75
+  data required time                                                 7.75
+  --------------------------------------------------------------------------
+  data required time                                                 7.75
+  data arrival time                                                 -7.75
+  --------------------------------------------------------------------------
+  slack (MET)                                                        0.00
 
 
 1

@@ -1,11 +1,10 @@
 StudentID: 
     r09921049
 Clock period: (ns)
-    8.4
+    7.6
 Area :  (um2)
-    117242
+    118939
 Latency:
     tb0: 317 (cycle)
     tb1: 39 (cycle)
     tb2: 607 (cycle)
-
